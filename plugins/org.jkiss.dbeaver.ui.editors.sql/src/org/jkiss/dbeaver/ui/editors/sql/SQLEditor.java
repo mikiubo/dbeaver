@@ -1019,6 +1019,8 @@ public class SQLEditor extends SQLEditorBase implements
         return dataSourceContainer != null && dataSourceContainer.isConnected();
     }
 
+    private static final Random RANDOM = new Random();
+
     @Override
     public void createPartControl(Composite parent) {
         setRangeIndicator(new DefaultRangeIndicator());
@@ -1110,6 +1112,37 @@ public class SQLEditor extends SQLEditorBase implements
                     @Override
                     public void focusGained(FocusEvent e) {
                         refreshActions();
+                    }
+                });
+                viewer.addTextPresentationListener(event -> {
+                    StyledText text = viewer.getTextWidget();
+
+                    int caretOffset = text.getCaretOffset();
+                    if (caretOffset == 0) return;
+
+                    String content = text.getText(0, caretOffset - 1);
+                    int lastWordStart = content.length();
+                    while (lastWordStart > 0 && !Character.isWhitespace(content.charAt(lastWordStart - 1))) {
+                        lastWordStart--;
+                    }
+
+                    Font[] fonts = new Font[] {
+                            new Font(text.getDisplay(), "JetBrains Mono", 12, SWT.NORMAL),
+                            new Font(text.getDisplay(), "Fira Code", 12, SWT.NORMAL),
+                            new Font(text.getDisplay(), "Monospace", 12, SWT.BOLD)
+                    };
+
+                    for (int i = lastWordStart; i < caretOffset; i++) {
+                        StyleRange range = new StyleRange();
+                        range.start = i;
+                        range.length = 1;
+                        range.foreground = new Color(text.getDisplay(),
+                                50 + RANDOM.nextInt(200),
+                                50 + RANDOM.nextInt(200),
+                                50 + RANDOM.nextInt(200));
+                        range.font = fonts[RANDOM.nextInt(fonts.length)];
+
+                        event.mergeStyleRange(range);
                     }
                 });
             }
