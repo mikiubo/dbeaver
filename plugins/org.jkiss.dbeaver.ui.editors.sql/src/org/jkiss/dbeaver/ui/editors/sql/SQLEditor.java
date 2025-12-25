@@ -1019,7 +1019,25 @@ public class SQLEditor extends SQLEditorBase implements
         return dataSourceContainer != null && dataSourceContainer.isConnected();
     }
 
-    private static final Random RANDOM = new Random();
+    private final List<Font> fontPool = Arrays.asList(
+            new Font(Display.getCurrent(), "JetBrains Mono", 12, SWT.NORMAL),
+            new Font(Display.getCurrent(), "Fira Code", 12, SWT.NORMAL),
+            new Font(Display.getCurrent(), "Monospace", 12, SWT.BOLD)
+    );
+
+    private final List<Color> colorPool = new ArrayList<>();
+    private final Random random = new Random();
+
+    private void initColorPool() {
+        Display display = Display.getCurrent();
+        for (int i = 0; i < 20; i++) { // 20 colori casuali riutilizzabili
+            colorPool.add(new Color(display,
+                    50 + random.nextInt(200),
+                    50 + random.nextInt(200),
+                    50 + random.nextInt(200)
+            ));
+        }
+    }
 
     @Override
     public void createPartControl(Composite parent) {
@@ -1126,22 +1144,12 @@ public class SQLEditor extends SQLEditorBase implements
                         lastWordStart--;
                     }
 
-                    Font[] fonts = new Font[] {
-                            new Font(text.getDisplay(), "JetBrains Mono", 12, SWT.NORMAL),
-                            new Font(text.getDisplay(), "Fira Code", 12, SWT.NORMAL),
-                            new Font(text.getDisplay(), "Monospace", 12, SWT.BOLD)
-                    };
-
                     for (int i = lastWordStart; i < caretOffset; i++) {
                         StyleRange range = new StyleRange();
                         range.start = i;
                         range.length = 1;
-                        range.foreground = new Color(text.getDisplay(),
-                                50 + RANDOM.nextInt(200),
-                                50 + RANDOM.nextInt(200),
-                                50 + RANDOM.nextInt(200));
-                        range.font = fonts[RANDOM.nextInt(fonts.length)];
-
+                        range.font = fontPool.get(random.nextInt(fontPool.size()));
+                        range.foreground = colorPool.get(random.nextInt(colorPool.size()));
                         event.mergeStyleRange(range);
                     }
                 });
