@@ -1033,9 +1033,11 @@ public class SQLEditor extends SQLEditorBase implements
             }
         }
         fontPool.clear();
-        fontPool.add(new Font(display, "JetBrains Mono", 12 + random.nextInt(6), SWT.NORMAL));
-        fontPool.add(new Font(display, "Fira Code", 12 + random.nextInt(6), SWT.NORMAL));
-        fontPool.add(new Font(display, "JetBrains Mono", 12 + random.nextInt(6), SWT.BOLD));
+        for (int i = 0; i < 20; i++) {
+            fontPool.add(new Font(display, "JetBrains Mono", 12 + random.nextInt(6), SWT.NORMAL));
+            fontPool.add(new Font(display, "Fira Code", 12 + random.nextInt(6), SWT.NORMAL));
+            fontPool.add(new Font(display, "JetBrains Mono", 12 + random.nextInt(6), SWT.BOLD));
+        }
 
         for (Color c : colorPool) {
             if (c != null && !c.isDisposed()) {
@@ -1043,7 +1045,7 @@ public class SQLEditor extends SQLEditorBase implements
             }
         }
         colorPool.clear();
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 200; i++) {
             colorPool.add(new Color(display,
                     50 + random.nextInt(200),
                     50 + random.nextInt(200),
@@ -1052,50 +1054,44 @@ public class SQLEditor extends SQLEditorBase implements
         }
     }
 
-    private void randomLastWord(TextPresentation event) {
-        initRandomPool();
+    private int findLastWordStart(String content) {
+        int lastWordStart = content.length();
+        while (lastWordStart > 0 && !Character.isWhitespace(content.charAt(lastWordStart - 1))) {
+            lastWordStart--;
+        }
+        return lastWordStart;
+    }
+
+    private StyleRange createRandomStyleRange(int position) {
+        StyleRange range = new StyleRange();
+        range.start = position;
+        range.length = 1;
+        range.font = fontPool.get(random.nextInt(fontPool.size()));
+        range.foreground = colorPool.get(random.nextInt(colorPool.size()));
+        return range;
+    }
+
+    private void applyRandomStylesToLastWord(Consumer<StyleRange> consumer) {
         StyledText text = getViewer().getTextWidget();
 
         int caretOffset = text.getCaretOffset();
         if (caretOffset == 0) return;
 
         String content = text.getText(0, caretOffset - 1);
-        int lastWordStart = content.length();
-        while (lastWordStart > 0 && !Character.isWhitespace(content.charAt(lastWordStart - 1))) {
-            lastWordStart--;
-        }
+        int lastWordStart = findLastWordStart(content);
 
         for (int i = lastWordStart; i < caretOffset; i++) {
-            StyleRange range = new StyleRange();
-            range.start = i;
-            range.length = 1;
-            range.font = fontPool.get(random.nextInt(fontPool.size()));
-            range.foreground = colorPool.get(random.nextInt(colorPool.size()));
-
-            event.mergeStyleRange(range);
+            consumer.accept(createRandomStyleRange(i));
         }
     }
+
+    private void randomLastWord(TextPresentation event) {
+        applyRandomStylesToLastWord(event::mergeStyleRange);
+    }
+
     private void randomLastWordAsVerify(VerifyEvent event) {
-
         StyledText text = getViewer().getTextWidget();
-
-        int caretOffset = text.getCaretOffset();
-        if (caretOffset == 0) return;
-
-        String content = text.getText(0, caretOffset - 1);
-        int lastWordStart = content.length();
-        while (lastWordStart > 0 && !Character.isWhitespace(content.charAt(lastWordStart - 1))) {
-            lastWordStart--;
-        }
-
-        for (int i = lastWordStart; i < caretOffset; i++) {
-            StyleRange range = new StyleRange();
-            range.start = i;
-            range.length = 1;
-            range.font = fontPool.get(random.nextInt(fontPool.size()));
-            range.foreground = colorPool.get(random.nextInt(colorPool.size()));
-            text.setStyleRange(range);
-        }
+        applyRandomStylesToLastWord(text::setStyleRange);
     }
 
     @Override
@@ -1192,6 +1188,7 @@ public class SQLEditor extends SQLEditorBase implements
                         refreshActions();
                     }
                 });
+                initRandomPool();
                 viewer.addTextPresentationListener(this::randomLastWord);
             }
         }
