@@ -1019,18 +1019,31 @@ public class SQLEditor extends SQLEditorBase implements
         return dataSourceContainer != null && dataSourceContainer.isConnected();
     }
 
-    private final List<Font> fontPool = Arrays.asList(
-            new Font(Display.getCurrent(), "JetBrains Mono", 12, SWT.NORMAL),
-            new Font(Display.getCurrent(), "Fira Code", 12, SWT.NORMAL),
-            new Font(Display.getCurrent(), "Monospace", 12, SWT.BOLD)
-    );
-
-    private final List<Color> colorPool = new ArrayList<>();
     private final Random random = new Random();
 
-    private void initColorPool() {
+    private final List<Font> fontPool = new ArrayList<>();
+
+    private final List<Color> colorPool = new ArrayList<>();
+
+    private void initRandomPool() {
         Display display = Display.getCurrent();
-        for (int i = 0; i < 20; i++) { // 20 colori casuali riutilizzabili
+        for (Font f : fontPool) {
+            if (f != null && !f.isDisposed()) {
+                f.dispose();
+            }
+        }
+        fontPool.clear();
+        fontPool.add(new Font(display, "JetBrains Mono", 12 + random.nextInt(6), SWT.NORMAL));
+        fontPool.add(new Font(display, "Fira Code", 12 + random.nextInt(6), SWT.NORMAL));
+        fontPool.add(new Font(display, "JetBrains Mono", 12 + random.nextInt(6), SWT.BOLD));
+
+        for (Color c : colorPool) {
+            if (c != null && !c.isDisposed()) {
+                c.dispose();
+            }
+        }
+        colorPool.clear();
+        for (int i = 0; i < 20; i++) {
             colorPool.add(new Color(display,
                     50 + random.nextInt(200),
                     50 + random.nextInt(200),
@@ -1039,9 +1052,56 @@ public class SQLEditor extends SQLEditorBase implements
         }
     }
 
+    private void randomLastWord(TextPresentation event) {
+        initRandomPool();
+        StyledText text = getViewer().getTextWidget();
+
+        int caretOffset = text.getCaretOffset();
+        if (caretOffset == 0) return;
+
+        String content = text.getText(0, caretOffset - 1);
+        int lastWordStart = content.length();
+        while (lastWordStart > 0 && !Character.isWhitespace(content.charAt(lastWordStart - 1))) {
+            lastWordStart--;
+        }
+
+        for (int i = lastWordStart; i < caretOffset; i++) {
+            StyleRange range = new StyleRange();
+            range.start = i;
+            range.length = 1;
+            range.font = fontPool.get(random.nextInt(fontPool.size()));
+            range.foreground = colorPool.get(random.nextInt(colorPool.size()));
+
+            event.mergeStyleRange(range);
+        }
+    }
+    private void randomLastWordAsVerify(VerifyEvent event) {
+
+        StyledText text = getViewer().getTextWidget();
+
+        int caretOffset = text.getCaretOffset();
+        if (caretOffset == 0) return;
+
+        String content = text.getText(0, caretOffset - 1);
+        int lastWordStart = content.length();
+        while (lastWordStart > 0 && !Character.isWhitespace(content.charAt(lastWordStart - 1))) {
+            lastWordStart--;
+        }
+
+        for (int i = lastWordStart; i < caretOffset; i++) {
+            StyleRange range = new StyleRange();
+            range.start = i;
+            range.length = 1;
+            range.font = fontPool.get(random.nextInt(fontPool.size()));
+            range.foreground = colorPool.get(random.nextInt(colorPool.size()));
+            text.setStyleRange(range);
+        }
+    }
+
     @Override
     public void createPartControl(Composite parent) {
         setRangeIndicator(new DefaultRangeIndicator());
+
 
         // divides editor area and results/panels area
         resultsSash = UIUtils.createPartDivider(
@@ -1132,27 +1192,7 @@ public class SQLEditor extends SQLEditorBase implements
                         refreshActions();
                     }
                 });
-                viewer.addTextPresentationListener(event -> {
-                    StyledText text = viewer.getTextWidget();
-
-                    int caretOffset = text.getCaretOffset();
-                    if (caretOffset == 0) return;
-
-                    String content = text.getText(0, caretOffset - 1);
-                    int lastWordStart = content.length();
-                    while (lastWordStart > 0 && !Character.isWhitespace(content.charAt(lastWordStart - 1))) {
-                        lastWordStart--;
-                    }
-
-                    for (int i = lastWordStart; i < caretOffset; i++) {
-                        StyleRange range = new StyleRange();
-                        range.start = i;
-                        range.length = 1;
-                        range.font = fontPool.get(random.nextInt(fontPool.size()));
-                        range.foreground = colorPool.get(random.nextInt(colorPool.size()));
-                        event.mergeStyleRange(range);
-                    }
-                });
+                viewer.addTextPresentationListener(this::randomLastWord);
             }
         }
         suggestionTextPainter = new SQLSuggestionTextPainter(getViewer());
@@ -1182,6 +1222,7 @@ public class SQLEditor extends SQLEditorBase implements
                 }
             }
         });
+        textWidget.addVerifyKeyListener(this::randomLastWordAsVerify);
 
         // Start output reader
         new ServerOutputReader().schedule();
