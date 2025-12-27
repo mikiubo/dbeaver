@@ -67,19 +67,22 @@ public class DBeaverSplashHandler extends BasicSplashHandler {
             versionInfoSizeString = product.getProperty("versionInfoSize");
         }
 
-        setProgressRect(StringConverter.asRectangle(progressRectString, new Rectangle(275, 300, 280, 10)));
-        setMessageRect(StringConverter.asRectangle(messageRectString, new Rectangle(275,275,280,25)));
+        setProgressRect( new Rectangle(50, 820, 500, 10));
+        setMessageRect(new Rectangle(50,800,500,25));
         final Point versionCoord = StringConverter.asPoint(versionCoordString, new Point(485, 215));
-        final int versionInfoSize = StringConverter.asInt(versionInfoSizeString, 22);
-        final RGB versionInfoRGB = new RGB(255,255,255);
+        final int versionInfoSize = 32;//StringConverter.asInt(versionInfoSizeString, 42);
+        final RGB versionInfoRGB = new RGB(255,0,0);
 
-        int foregroundColorInteger = 0xFFFFFF;
+        int foregroundColorInteger = 0xFF0000;
 
         setForeground(
 			new RGB(
 				(foregroundColorInteger & 0xFF0000) >> 16,
                 (foregroundColorInteger & 0xFF00) >> 8,
                 foregroundColorInteger & 0xFF));
+
+        //progressBarColor = new Color(getContent().getDisplay(), new RGB(255, 0, 0));
+        //applyProgressBarColor();
 
         normalFont = getContent().getFont();
         //boldFont = UIUtils.makeBoldFont(normalFont);
@@ -100,8 +103,10 @@ public class DBeaverSplashHandler extends BasicSplashHandler {
                 e.gc.setFont(boldFont);
             }
             e.gc.setForeground(versionColor);
-            e.gc.drawText(productVersion, versionCoord.x, versionCoord.y, true);
+            e.gc.drawText(productVersion+" Lara Style", versionCoord.x-50, versionCoord.y-50, true);
             //e.gc.drawText(osVersion, 115, 200, true);
+            //e.gc.drawText("Lara_style", versionCoord.x, versionCoord.y-50, true);
+
             e.gc.setFont(normalFont);
         });
     }
