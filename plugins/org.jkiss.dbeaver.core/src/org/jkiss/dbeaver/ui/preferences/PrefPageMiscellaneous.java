@@ -46,6 +46,7 @@ import org.jkiss.dbeaver.ui.controls.bool.BooleanMode;
 import org.jkiss.dbeaver.ui.controls.bool.BooleanState;
 import org.jkiss.dbeaver.ui.controls.bool.BooleanStyle;
 import org.jkiss.dbeaver.ui.controls.bool.BooleanStyleSet;
+import org.jkiss.dbeaver.ui.controls.decorations.LaraStyleUtils;
 import org.jkiss.utils.CommonUtils;
 
 import java.util.ArrayList;
@@ -54,6 +55,8 @@ import java.util.function.Consumer;
 
 public class PrefPageMiscellaneous extends PrefPageMiscellaneousAbstract implements IWorkbenchPreferencePage {
     private Button holidayDecorationsCheck;
+    private Button laraStyleCheck;
+
     private final List<Consumer<BooleanStyleSet>> booleanStylesChangeListeners = new ArrayList<>();
     private BooleanPanel booleanCheckedPanel;
     private BooleanPanel booleanUncheckedPanel;
@@ -160,6 +163,15 @@ public class PrefPageMiscellaneous extends PrefPageMiscellaneousAbstract impleme
             UIUtils.createInfoLabel(group, CoreMessages.pref_page_ui_general_label_options_take_effect_after_restart);
         }
 
+        {
+            final Group group = UIUtils.createControlGroup(composite, "Lara Style", 1, GridData.FILL_HORIZONTAL, 0);
+
+            laraStyleCheck = UIUtils.createCheckbox(group, "Activate Lara Style", true);
+            laraStyleCheck.setLayoutData(new GridData());
+            laraStyleCheck.setSelection(store.getBoolean(DBeaverPreferences.UI_ACTIVATE_LARA_STYLE));
+            UIUtils.createInfoLabel(group, CoreMessages.pref_page_ui_general_label_options_take_effect_after_restart);
+        }
+
         injectConfigurators(composite);
 
         return composite;
@@ -171,6 +183,8 @@ public class PrefPageMiscellaneous extends PrefPageMiscellaneousAbstract impleme
 
         holidayDecorationsCheck.setSelection(store.getDefaultBoolean(DBeaverPreferences.UI_SHOW_HOLIDAY_DECORATIONS));
 
+        laraStyleCheck.setSelection(store.getDefaultBoolean(DBeaverPreferences.UI_ACTIVATE_LARA_STYLE));
+
         notifyBooleanStylesChanged(BooleanStyleSet.getDefaultStyleSet());
 
         super.performDefaults();
@@ -181,6 +195,8 @@ public class PrefPageMiscellaneous extends PrefPageMiscellaneousAbstract impleme
         final DBPPreferenceStore store = DBWorkbench.getPlatform().getPreferenceStore();
 
         store.setValue(DBeaverPreferences.UI_SHOW_HOLIDAY_DECORATIONS, holidayDecorationsCheck.getSelection());
+
+        store.setValue(DBeaverPreferences.UI_ACTIVATE_LARA_STYLE, laraStyleCheck.getSelection());
 
         BooleanStyleSet.setDefaultStyles(store, new BooleanStyleSet(
             booleanCheckedPanel.saveStyle(),

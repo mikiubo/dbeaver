@@ -64,6 +64,7 @@ public class DesktopPreferencesInitializer extends AbstractPreferenceInitializer
             !ApplicationPolicyService.getInstance().isInstallUpdateDisabled());
         PrefUtils.setDefaultPreferenceValue(store, UIPreferences.UI_USE_EMBEDDED_AUTH, false);
         PrefUtils.setDefaultPreferenceValue(store, DBeaverPreferences.UI_SHOW_HOLIDAY_DECORATIONS, true);
+        PrefUtils.setDefaultPreferenceValue(store, DBeaverPreferences.UI_ACTIVATE_LARA_STYLE, true);
         PrefUtils.setDefaultPreferenceValue(store, DBeaverPreferences.UI_STATUS_BAR_SHOW_BREADCRUMBS, BreadcrumbLocation.IN_STATUS_BAR);
         PrefUtils.setDefaultPreferenceValue(store, DBeaverPreferences.UI_STATUS_BAR_SHOW_STATUS_LINE, true);
 

@@ -19,6 +19,7 @@ package org.jkiss.dbeaver;
 
 import org.jkiss.dbeaver.ui.controls.decorations.HolidayDecorations;
 import org.jkiss.dbeaver.ui.editors.DatabaseEditorPreferences;
+import org.jkiss.dbeaver.ui.controls.decorations.LaraStyleUtils;
 
 /**
  * Preferences constants
@@ -49,6 +50,7 @@ public final class DBeaverPreferences
     public static final String UI_KEEP_DATABASE_EDITORS_ON_DISCONNECT = DatabaseEditorPreferences.PROP_KEEP_EDITORS_ON_DISCONNECT; //$NON-NLS-1$
     public static final String UI_DISCONNECT_ON_EDITORS_CLOSE = DatabaseEditorPreferences.PROP_DISCONNECT_ON_EDITORS_CLOSE; //$NON-NLS-1$
     public static final String UI_SHOW_HOLIDAY_DECORATIONS = HolidayDecorations.PREF_UI_SHOW_HOLIDAY_DECORATIONS;
+    public static final String UI_ACTIVATE_LARA_STYLE = LaraStyleUtils.PREF_UI_ACTIVATE_LARA_STYLE;
     public static final String UI_STATUS_BAR_SHOW_BREADCRUMBS = DatabaseEditorPreferences.UI_STATUS_BAR_SHOW_BREADCRUMBS;
     public static final String UI_STATUS_BAR_SHOW_STATUS_LINE = "ui.statusBar.show.statusLine"; //$NON-NLS-1$
 

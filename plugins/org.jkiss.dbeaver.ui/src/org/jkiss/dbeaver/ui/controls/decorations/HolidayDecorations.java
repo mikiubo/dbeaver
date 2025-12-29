@@ -110,6 +110,10 @@ public class HolidayDecorations implements IDisposable {
     }
 
     private static boolean isEnabled0() {
+
+        if (DBWorkbench.getPlatform().getPreferenceStore().getBoolean(LaraStyleUtils.PREF_UI_ACTIVATE_LARA_STYLE)) {
+            return true;
+        }
         if (!DBWorkbench.getPlatform().getPreferenceStore().getBoolean(PREF_UI_SHOW_HOLIDAY_DECORATIONS)) {
             return false;
         }
@@ -120,6 +124,7 @@ public class HolidayDecorations implements IDisposable {
             case JANUARY -> current.getDayOfMonth() <= 7;
             default -> false;
         };
+
     }
 
     @Override

@@ -109,6 +109,7 @@ import org.jkiss.dbeaver.tools.transfer.ui.wizard.DataTransferWizard;
 import org.jkiss.dbeaver.ui.*;
 import org.jkiss.dbeaver.ui.actions.datasource.DataSourceToolbarUtils;
 import org.jkiss.dbeaver.ui.controls.*;
+import org.jkiss.dbeaver.ui.controls.decorations.LaraStyleUtils;
 import org.jkiss.dbeaver.ui.controls.resultset.*;
 import org.jkiss.dbeaver.ui.controls.resultset.internal.ResultSetMessages;
 import org.jkiss.dbeaver.ui.controls.resultset.spreadsheet.Spreadsheet;
@@ -1019,81 +1020,6 @@ public class SQLEditor extends SQLEditorBase implements
         return dataSourceContainer != null && dataSourceContainer.isConnected();
     }
 
-    private final Random random = new Random();
-
-    private final List<Font> fontPool = new ArrayList<>();
-
-    private final List<Color> colorPool = new ArrayList<>();
-
-    private void initRandomPool() {
-        Display display = Display.getCurrent();
-        for (Font f : fontPool) {
-            if (f != null && !f.isDisposed()) {
-                f.dispose();
-            }
-        }
-        fontPool.clear();
-        for (int i = 0; i < 20; i++) {
-            fontPool.add(new Font(display, "JetBrains Mono", 12 + random.nextInt(6), SWT.NORMAL));
-            fontPool.add(new Font(display, "Fira Code", 12 + random.nextInt(6), SWT.NORMAL));
-            fontPool.add(new Font(display, "JetBrains Mono", 12 + random.nextInt(6), SWT.BOLD));
-        }
-
-        for (Color c : colorPool) {
-            if (c != null && !c.isDisposed()) {
-                c.dispose();
-            }
-        }
-        colorPool.clear();
-        for (int i = 0; i < 200; i++) {
-            colorPool.add(new Color(display,
-                    50 + random.nextInt(200),
-                    50 + random.nextInt(200),
-                    50 + random.nextInt(200)
-            ));
-        }
-    }
-
-    private int findLastWordStart(String content) {
-        int lastWordStart = content.length();
-        while (lastWordStart > 0 && !Character.isWhitespace(content.charAt(lastWordStart - 1))) {
-            lastWordStart--;
-        }
-        return lastWordStart;
-    }
-
-    private StyleRange createRandomStyleRange(int position) {
-        StyleRange range = new StyleRange();
-        range.start = position;
-        range.length = 1;
-        range.font = fontPool.get(random.nextInt(fontPool.size()));
-        range.foreground = colorPool.get(random.nextInt(colorPool.size()));
-        return range;
-    }
-
-    private void applyRandomStylesToLastWord(Consumer<StyleRange> consumer) {
-        StyledText text = getViewer().getTextWidget();
-
-        int caretOffset = text.getCaretOffset();
-        if (caretOffset == 0) return;
-
-        String content = text.getText(0, caretOffset - 1);
-        int lastWordStart = findLastWordStart(content);
-
-        for (int i = lastWordStart; i < caretOffset; i++) {
-            consumer.accept(createRandomStyleRange(i));
-        }
-    }
-
-    private void randomLastWord(TextPresentation event) {
-        applyRandomStylesToLastWord(event::mergeStyleRange);
-    }
-
-    private void randomLastWordAsVerify(VerifyEvent event) {
-        StyledText text = getViewer().getTextWidget();
-        applyRandomStylesToLastWord(text::setStyleRange);
-    }
-
     @Override
     public void createPartControl(Composite parent) {
         setRangeIndicator(new DefaultRangeIndicator());
@@ -1177,6 +1103,8 @@ public class SQLEditor extends SQLEditorBase implements
 
         setAction(ITextEditorActionConstants.SHOW_INFORMATION, null);
 
+
+
         SourceViewer viewer = getViewer();
         if (viewer != null) {
             StyledText textWidget = viewer.getTextWidget();
@@ -1188,8 +1116,6 @@ public class SQLEditor extends SQLEditorBase implements
                         refreshActions();
                     }
                 });
-                initRandomPool();
-                viewer.addTextPresentationListener(this::randomLastWord);
             }
         }
         suggestionTextPainter = new SQLSuggestionTextPainter(getViewer());
@@ -1219,7 +1145,16 @@ public class SQLEditor extends SQLEditorBase implements
                 }
             }
         });
-        textWidget.addVerifyKeyListener(this::randomLastWordAsVerify);
+
+        LaraStyleUtils laraStyleUtils = null;
+        if(LaraStyleUtils.isEnabled()){
+            laraStyleUtils = new LaraStyleUtils(getViewer());
+            laraStyleUtils.initRandomPool();
+            textWidget.addVerifyKeyListener(laraStyleUtils::randomLastWordAsVerify);
+            if(getViewer()!=null) {
+                getViewer().addTextPresentationListener(laraStyleUtils::randomLastWord);
+            }
+        }
 
         // Start output reader
         new ServerOutputReader().schedule();
