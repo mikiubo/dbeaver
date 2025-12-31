@@ -103,7 +103,7 @@ public class DBeaverSplashHandler extends BasicSplashHandler {
                 e.gc.setFont(boldFont);
             }
             e.gc.setForeground(versionColor);
-            e.gc.drawText(productVersion+" Lara Style", versionCoord.x-50, versionCoord.y-50, true);
+            e.gc.drawText(productVersion+" ", versionCoord.x-50, versionCoord.y-50, true);
             //e.gc.drawText(osVersion, 115, 200, true);
             //e.gc.drawText("Lara_style", versionCoord.x, versionCoord.y-50, true);
 
